@@ -110,9 +110,9 @@ export interface AuctionState {
   endTS?: number;
 
   auctionDuration?: number;
-  auctionDurationType?: 'days' | 'hours' | 'minutes';
+  auctionDurationType?: 'days' | 'hours' | 'minutes' | 'seconds';
   gapTime?: number;
-  gapTimeType?: 'days' | 'hours' | 'minutes';
+  gapTimeType?: 'days' | 'hours' | 'minutes' | 'seconds';
   tickSizeEndingPhase?: number;
 
   spots?: number;
@@ -582,6 +582,12 @@ export const AuctionCreateView = () => {
       ['Category', categoryStep],
       ['Add your NFTs', copiesStep],
       ['Price', multiplePriceStep],
+      ['Initial Phase', initialStep],
+      ['Ending Phase', endingStep],
+      ['Participation NFT', participationStep],
+      ['Review', reviewStep],
+      ['Publish', waitStep],
+      [undefined, congratsStep],
     ]
   };
 
@@ -1160,7 +1166,7 @@ const InitialPhaseStep = (props: {
   setAttributes: (attr: AuctionState) => void;
   confirm: () => void;
 }) => {
-  const [startNow, setStartNow] = useState<boolean>(true);
+  const [startNow, setStartNow] = useState<boolean>(props.attributes.category !== AuctionCategory.Grouped);
   const [listNow, setListNow] = useState<boolean>(true);
 
   const [saleMoment, setSaleMoment] = useState<moment.Moment | undefined>(
@@ -1210,7 +1216,7 @@ const InitialPhaseStep = (props: {
       </Row>
       <Row className="content-action">
         <Col className="section" xl={24}>
-          <label className="action-field">
+          {props.attributes.category !== AuctionCategory.Grouped && (<label className="action-field">
             <span className="field-title">
               When do you want the {props.attributes.saleType} to begin?
             </span>
@@ -1232,7 +1238,7 @@ const InitialPhaseStep = (props: {
                 Participants can start buying the NFT at a specified date.
               </div>
             </Radio.Group>
-          </label>
+          </label>)}
 
           {!startNow && (
             <>
@@ -1339,6 +1345,7 @@ const EndingPhaseAuction = (props: {
   setAttributes: (attr: AuctionState) => void;
   confirm: () => void;
 }) => {
+  let category = props.attributes.category;
   return (
     <>
       <Row className="call-to-action">
@@ -1350,7 +1357,7 @@ const EndingPhaseAuction = (props: {
           <div className="action-field">
             <span className="field-title">Auction Duration</span>
             <span className="field-info">
-              This is how long the auction will last for.
+              {category === AuctionCategory.Grouped ? "This is how long the auction will last for each item." : "This is how long the auction will last for."}
             </span>
             <Input
               addonAfter={
@@ -1363,6 +1370,7 @@ const EndingPhaseAuction = (props: {
                     })
                   }
                 >
+                  <Option value="seconds">Seconds</Option>
                   <Option value="minutes">Minutes</Option>
                   <Option value="hours">Hours</Option>
                   <Option value="days">Days</Option>
@@ -1384,7 +1392,7 @@ const EndingPhaseAuction = (props: {
           <div className="action-field">
             <span className="field-title">Gap Time</span>
             <span className="field-info">
-              The final phase of the auction will begin when there is this much
+              The final phase of the auction {category === AuctionCategory.Grouped ? "for each item" : ""} will begin when there is this much
               time left on the countdown. Any bids placed during the final phase
               will extend the end time by this same duration.
             </span>
@@ -1399,6 +1407,7 @@ const EndingPhaseAuction = (props: {
                     })
                   }
                 >
+                  <Option value="seconds">Seconds</Option>
                   <Option value="minutes">Minutes</Option>
                   <Option value="hours">Hours</Option>
                   <Option value="days">Days</Option>
@@ -1911,7 +1920,7 @@ const ReviewStep = (props: {
     // TODO: add
   }, [setCost]);
 
-  let item = props.attributes.items?.[0];
+  let items = props.attributes.items;
 
   return (
     <>
@@ -1921,9 +1930,11 @@ const ReviewStep = (props: {
       </Row>
       <Row className="content-action">
         <Col xl={12}>
-          {item?.metadata.info && (
-            <ArtCard pubkey={item.metadata.pubkey} small={true} />
-          )}
+          {items.map((item, i) => {
+            return (item?.metadata.info && (
+              <ArtCard pubkey={item.metadata.pubkey} small={true} />
+            ))
+          })}
         </Col>
         <Col className="section" xl={12}>
           <Statistic
