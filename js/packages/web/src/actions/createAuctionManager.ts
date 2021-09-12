@@ -96,6 +96,9 @@ export interface SafetyDepositDraft {
   winningConfigType: WinningConfigType;
   amountRanges: AmountRange[];
   participationConfig?: ParticipationConfigV2;
+  //Used for multiple auction
+  priceFloor?: number;
+  priceTick?: number;
 }
 
 // This is a super command that executes many transactions to create a Vault, Auction, and AuctionManager starting
