@@ -61,6 +61,7 @@ export enum AuctionCategory {
   Single,
   Open,
   Tiered,
+  Grouped
 }
 
 interface TierDummyEntry {
@@ -569,6 +570,10 @@ export const AuctionCreateView = () => {
       ['Publish', waitStep],
       [undefined, congratsStep],
     ],
+    [AuctionCategory.Grouped]: [
+      ['Category', categoryStep],
+      ['Add your NFTs', copiesStep],
+    ]
   };
 
   return (
@@ -680,6 +685,20 @@ const CategoryStep = (props: {
               </div>
             </Button>
           </Row>
+          <Row>
+            <Button
+              className="type-btn"
+              size="large"
+              onClick={() => props.confirm(AuctionCategory.Grouped)}
+            >
+              <div>
+                <div>Sell multiple Existing Item in a Auction Room</div>
+                <div className="type-btn-description">
+                  Create an Auction room to sell differents NFT in a single auction.
+                </div>
+              </div>
+            </Button>
+          </Row>
         </Col>
       </Row>
     </>
@@ -719,16 +738,30 @@ const CopiesStep = (props: {
       </Row>
       <Row className="content-action">
         <Col xl={24}>
-          <ArtSelector
-            filter={overallFilter}
-            selected={props.attributes.items}
-            setSelected={items => {
-              props.setAttributes({ ...props.attributes, items });
-            }}
-            allowMultiple={false}
-          >
-            Select NFT
-          </ArtSelector>
+          {props.attributes.category === AuctionCategory.Grouped ? (
+            <ArtSelector
+              filter={overallFilter}
+              selected={props.attributes.items}
+              setSelected={items => {
+                props.setAttributes({ ...props.attributes, items });
+              }}
+              allowMultiple={true}
+            >
+              Select NFT
+            </ArtSelector>
+          ) : (
+            <ArtSelector
+              filter={overallFilter}
+              selected={props.attributes.items}
+              setSelected={items => {
+                props.setAttributes({ ...props.attributes, items });
+              }}
+              allowMultiple={false}
+            >
+              Select NFT
+            </ArtSelector>
+          )}
+          
           {props.attributes.category === AuctionCategory.Limited && (
             <label className="action-field">
               <span className="field-title">

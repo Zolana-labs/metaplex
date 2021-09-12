@@ -24,7 +24,8 @@ export const ArtSelector = (props: ArtSelectorProps) => {
   const [visible, setVisible] = useState(false);
 
   const open = () => {
-    clear();
+    if (!allowMultiple)
+      clear();
 
     setVisible(true);
   };
@@ -110,7 +111,7 @@ export const ArtSelector = (props: ArtSelectorProps) => {
 
               const onSelect = () => {
                 let list = [...selectedItems.keys()];
-                if (allowMultiple) {
+                if (!allowMultiple) {
                   list = [];
                 }
 
